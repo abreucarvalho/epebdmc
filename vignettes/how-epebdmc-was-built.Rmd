@@ -1,0 +1,46 @@
+---
+title: "How This Package Was Built"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{How This Package Was Built}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+## Overview
+
+`epebdmc` is an ETL package designed to be simple and direct. It extracts data
+from multiple formats (CSV, Excel, JSON, APIs, databases), transforms it with
+flexible filters, and loads treated data into SQLite — with a built-in migration
+path to SQL Server.
+
+## Design Principles
+
+- **DBI as the abstraction layer**: All database operations use DBI generics,
+  making the backend swappable without changing application code.
+- **Consistent return types**: Every extract function returns a tibble,
+  so transforms are source-agnostic.
+- **Logging by default**: Every ETL step logs a timestamped message via `cli`,
+  making pipelines transparent and debuggable.
+- **Migration-ready**: SQL Server connection code is included but commented,
+  requiring only a config change to switch backends.
+
+## Build Steps
+
+### Step 1: Package skeleton
+Created with `usethis::create_package("epebdmc")`, initialized Git with
+`usethis::use_git()`, and connected to GitHub with `usethis::use_github()`.
+
+### Step 2: License and metadata
+Chose MIT license via `usethis::use_mit_license()`. Filled in DESCRIPTION
+with package title, author, and description.
+
+### Step 3: Dependencies
+Added all Imports and Suggests via `usethis::use_package()`.
+See `dev/02_dependencies.R` for the complete list.
+
+### Step 4: Logging utility
+First function: `etl_log()` in `R/utils.R`. All subsequent functions
+call this to provide console feedback.
+
+*Continued as the package evolves...*
