@@ -3,30 +3,127 @@
 -- Package: epebdmc
 -- *********************************************************
 
--- Metadata: tracks each extraction run
-CREATE TABLE IF NOT EXISTS etl_log (
-    id         INTEGER PRIMARY KEY AUTOINCREMENT,
-    source     TEXT NOT NULL,
-    file_name  TEXT,
-    rows_in    INTEGER,
-    rows_out   INTEGER,
-    started_at TEXT NOT NULL,
-    finished_at TEXT,
-    status     TEXT DEFAULT 'running'
+-- *********************************************************
+-- ETL METADATA
+-- *********************************************************
+
+CREATE TABLE IF NOT EXISTS etlLog (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    source      TEXT NOT NULL,
+    fileName    TEXT,
+    rowsIn      INTEGER,
+    rowsOut     INTEGER,
+    startedAt   TEXT NOT NULL,
+    finishedAt  TEXT,
+    status      TEXT DEFAULT 'running'
 );
 
--- Example target tables (replace with your actual tables)
-CREATE TABLE IF NOT EXISTS raw_data (
-    id         INTEGER PRIMARY KEY AUTOINCREMENT,
-    source     TEXT NOT NULL,
-    loaded_at  TEXT NOT NULL,
-    row_count  INTEGER
+-- *********************************************************
+-- DIMENSION TABLES
+-- *********************************************************
+
+CREATE TABLE IF NOT EXISTS dimUf (
+    ufId            INTEGER PRIMARY KEY,
+    ufCode          TEXT NOT NULL,
+    ufName          TEXT NOT NULL,
+    regionName      TEXT NOT NULL,
+    isBrasilTotal   INTEGER DEFAULT 0
 );
 
-CREATE TABLE IF NOT EXISTS treated_data (
-    id         INTEGER PRIMARY KEY AUTOINCREMENT,
-    source     TEXT,
-    key        TEXT,
-    value      TEXT,
-    treated_at TEXT
+CREATE TABLE IF NOT EXISTS dimGasType (
+    gasId           INTEGER PRIMARY KEY,
+    gasName         TEXT NOT NULL,
+    gasFormula      TEXT NOT NULL,
+    gasUnit         TEXT NOT NULL DEFAULT 'kt',
+    isEquivalent    INTEGER DEFAULT 0,
+    gwpAr5          REAL
 );
+
+CREATE TABLE IF NOT EXISTS dimYear (
+    yearId          INTEGER PRIMARY KEY,
+    inventoryPeriod TEXT NOT NULL DEFAULT 'BTR1 (1990-2022)'
+);
+
+-- *********************************************************
+-- FACT TABLES
+-- *********************************************************
+
+CREATE TABLE IF NOT EXISTS factEnergyEmissions (
+    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+    ufId            INTEGER NOT NULL,
+    gasId           INTEGER NOT NULL,
+    yearId          INTEGER NOT NULL,
+    emissionKt      REAL,
+    FOREIGN KEY (ufId)   REFERENCES dimUf(ufId),
+    FOREIGN KEY (gasId)  REFERENCES dimGasType(gasId),
+    FOREIGN KEY (yearId) REFERENCES dimYear(yearId)
+);
+
+-- *********************************************************
+-- SEED DATA: dimUf
+-- *********************************************************
+
+INSERT OR IGNORE INTO dimUf (ufId, ufCode, ufName, regionName, isBrasilTotal) VALUES
+    (11, 'RO', 'Rondônia',             'Norte',        0),
+    (12, 'AC', 'Acre',                 'Norte',        0),
+    (13, 'AM', 'Amazonas',             'Norte',        0),
+    (14, 'RR', 'Roraima',              'Norte',        0),
+    (15, 'PA', 'Pará',                 'Norte',        0),
+    (16, 'AP', 'Amapá',                'Norte',        0),
+    (17, 'TO', 'Tocantins',            'Norte',        0),
+    (21, 'MA', 'Maranhão',             'Nordeste',     0),
+    (22, 'PI', 'Piauí',                'Nordeste',     0),
+    (23, 'CE', 'Ceará',                'Nordeste',     0),
+    (24, 'RN', 'Rio Grande do Norte',  'Nordeste',     0),
+    (25, 'PB', 'Paraíba',              'Nordeste',     0),
+    (26, 'PE', 'Pernambuco',           'Nordeste',     0),
+    (27, 'AL', 'Alagoas',              'Nordeste',     0),
+    (28, 'SE', 'Sergipe',              'Nordeste',     0),
+    (29, 'BA', 'Bahia',                'Nordeste',     0),
+    (31, 'MG', 'Minas Gerais',         'Sudeste',      0),
+    (32, 'ES', 'Espírito Santo',       'Sudeste',      0),
+    (33, 'RJ', 'Rio de Janeiro',       'Sudeste',      0),
+    (35, 'SP', 'São Paulo',            'Sudeste',      0),
+    (41, 'PR', 'Paraná',               'Sul',          0),
+    (42, 'SC', 'Santa Catarina',       'Sul',          0),
+    (43, 'RS', 'Rio Grande do Sul',    'Sul',          0),
+    (50, 'MS', 'Mato Grosso do Sul',   'Centro-Oeste', 0),
+    (51, 'MT', 'Mato Grosso',          'Centro-Oeste', 0),
+    (52, 'GO', 'Goiás',                'Centro-Oeste', 0),
+    (53, 'DF', 'Distrito Federal',     'Centro-Oeste', 0),
+    (99, 'BR', 'Brasil',               'Brasil',       1);
+
+-- *********************************************************
+-- SEED DATA: dimGasType
+-- *********************************************************
+
+INSERT OR IGNORE INTO dimGasType (gasId, gasName, gasFormula, gasUnit, isEquivalent, gwpAr5) VALUES
+    (1, 'CO2 eq', 'CO₂ eq', 'kt', 1, NULL),
+    (2, 'CO2',    'CO₂',    'kt', 0, 1.0),
+    (3, 'CH4',    'CH₄',    'kt', 0, 28.0),
+    (4, 'N2O',    'N₂O',    'kt', 0, 265.0);
+
+-- *********************************************************
+-- SEED DATA: dimYear
+-- *********************************************************
+
+INSERT OR IGNORE INTO dimYear (yearId, inventoryPeriod) VALUES
+    (1990, 'BTR1 (1990-2022)'), (1991, 'BTR1 (1990-2022)'),
+    (1992, 'BTR1 (1990-2022)'), (1993, 'BTR1 (1990-2022)'),
+    (1994, 'BTR1 (1990-2022)'), (1995, 'BTR1 (1990-2022)'),
+    (1996, 'BTR1 (1990-2022)'), (1997, 'BTR1 (1990-2022)'),
+    (1998, 'BTR1 (1990-2022)'), (1999, 'BTR1 (1990-2022)'),
+    (2000, 'BTR1 (1990-2022)'), (2001, 'BTR1 (1990-2022)'),
+    (2002, 'BTR1 (1990-2022)'), (2003, 'BTR1 (1990-2022)'),
+    (2004, 'BTR1 (1990-2022)'), (2005, 'BTR1 (1990-2022)'),
+    (2006, 'BTR1 (1990-2022)'), (2007, 'BTR1 (1990-2022)'),
+    (2008, 'BTR1 (1990-2022)'), (2009, 'BTR1 (1990-2022)'),
+    (2010, 'BTR1 (1990-2022)'), (2011, 'BTR1 (1990-2022)'),
+    (2012, 'BTR1 (1990-2022)'), (2013, 'BTR1 (1990-2022)'),
+    (2014, 'BTR1 (1990-2022)'), (2015, 'BTR1 (1990-2022)'),
+    (2016, 'BTR1 (1990-2022)'), (2017, 'BTR1 (1990-2022)'),
+    (2018, 'BTR1 (1990-2022)'), (2019, 'BTR1 (1990-2022)'),
+    (2020, 'BTR1 (1990-2022)'), (2021, 'BTR1 (1990-2022)'),
+    (2022, 'BTR1 (1990-2022)');
+
+
