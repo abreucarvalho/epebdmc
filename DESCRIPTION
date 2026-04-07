@@ -26,4 +26,8 @@ Imports:
     tidyr
 Suggests: 
     dbplyr,
-    odbc
+    knitr,
+    odbc,
+    rmarkdown,
+    testthat
+VignetteBuilder: knitr
