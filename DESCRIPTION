@@ -1,11 +1,10 @@
 Package: epebdmc
-Title: What the Package Does (One Line, Title Case)
-Version: 0.0.0.9000
+Title: Base de Dados de Mudanças Climáticas 
+Version: 0.1.0
 Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"))
-Description: What the package does (one paragraph).
-License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
-    license
+    person("Rodrigo", "Carvalho", , "rodrigo.carvalho@epe.gov.br", role = c("aut", "cre"))
+Description: Fornece uma base de dados de indicadores socioambientais sobre riscos climáticos, mitigação e adaptação no setor de energia. Inclui ferramentas para consulta, análise e visualização dos indicadores de mudanças climáticas compilados pelo Sistema de Indicadores de Energia, Meio Ambiente e Sociedade (SIEMAS).
+License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
