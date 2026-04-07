@@ -10,3 +10,20 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
 URL: https://github.com/abreucarvalho/epebdmc
 BugReports: https://github.com/abreucarvalho/epebdmc/issues
+Imports: 
+    cli,
+    DBI,
+    dplyr,
+    httr2,
+    jsonlite,
+    lubridate,
+    purrr,
+    readr,
+    readxl,
+    rlang,
+    RSQLite,
+    stringr,
+    tidyr
+Suggests: 
+    dbplyr,
+    odbc
