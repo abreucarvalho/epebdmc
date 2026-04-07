@@ -1,11 +1,11 @@
--- *********************************************************
+-- ************************************************************
 -- schemas_sqlite.sql — SQLite table definitions
 -- Package: epebdmc
--- *********************************************************
+-- ************************************************************
 
--- *********************************************************
+-- ************************************************************
 -- ETL METADATA
--- *********************************************************
+-- ************************************************************
 
 CREATE TABLE IF NOT EXISTS etlLog (
     id          INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -18,9 +18,9 @@ CREATE TABLE IF NOT EXISTS etlLog (
     status      TEXT DEFAULT 'running'
 );
 
--- *********************************************************
+-- ************************************************************
 -- DIMENSION TABLES
--- *********************************************************
+-- ************************************************************
 
 CREATE TABLE IF NOT EXISTS dimUf (
     ufId            INTEGER PRIMARY KEY,
@@ -39,29 +39,39 @@ CREATE TABLE IF NOT EXISTS dimGasType (
     gwpAr5          REAL
 );
 
-CREATE TABLE IF NOT EXISTS dimYear (
-    yearId          INTEGER PRIMARY KEY,
-    inventoryPeriod TEXT NOT NULL DEFAULT 'BTR1 (1990-2022)'
+CREATE TABLE IF NOT EXISTS dimSector (
+    sectorId        INTEGER PRIMARY KEY,
+    sectorName      TEXT NOT NULL,
+    sectorNamePt    TEXT NOT NULL,
+    ipccCategory    TEXT,
+    isTotalSector   INTEGER DEFAULT 0
 );
 
--- *********************************************************
--- FACT TABLES
--- *********************************************************
+CREATE TABLE IF NOT EXISTS dimYear (
+    yearId          INTEGER PRIMARY KEY,
+    inventoryPeriod TEXT NOT NULL
+);
 
-CREATE TABLE IF NOT EXISTS factEnergyEmissions (
+-- ************************************************************
+-- FACT TABLE
+-- ************************************************************
+
+CREATE TABLE IF NOT EXISTS factEmissions (
     id              INTEGER PRIMARY KEY AUTOINCREMENT,
     ufId            INTEGER NOT NULL,
+    sectorId        INTEGER NOT NULL,
     gasId           INTEGER NOT NULL,
     yearId          INTEGER NOT NULL,
     emissionKt      REAL,
-    FOREIGN KEY (ufId)   REFERENCES dimUf(ufId),
-    FOREIGN KEY (gasId)  REFERENCES dimGasType(gasId),
-    FOREIGN KEY (yearId) REFERENCES dimYear(yearId)
+    FOREIGN KEY (ufId)     REFERENCES dimUf(ufId),
+    FOREIGN KEY (sectorId) REFERENCES dimSector(sectorId),
+    FOREIGN KEY (gasId)    REFERENCES dimGasType(gasId),
+    FOREIGN KEY (yearId)   REFERENCES dimYear(yearId)
 );
 
--- *********************************************************
+-- ************************************************************
 -- SEED DATA: dimUf
--- *********************************************************
+-- ************************************************************
 
 INSERT OR IGNORE INTO dimUf (ufId, ufCode, ufName, regionName, isBrasilTotal) VALUES
     (11, 'RO', 'Rondônia',             'Norte',        0),
@@ -93,37 +103,28 @@ INSERT OR IGNORE INTO dimUf (ufId, ufCode, ufName, regionName, isBrasilTotal) VA
     (53, 'DF', 'Distrito Federal',     'Centro-Oeste', 0),
     (99, 'BR', 'Brasil',               'Brasil',       1);
 
--- *********************************************************
+-- ************************************************************
 -- SEED DATA: dimGasType
--- *********************************************************
+-- ************************************************************
 
 INSERT OR IGNORE INTO dimGasType (gasId, gasName, gasFormula, gasUnit, isEquivalent, gwpAr5) VALUES
-    (1, 'CO2 eq', 'CO₂ eq', 'kt', 1, NULL),
-    (2, 'CO2',    'CO₂',    'kt', 0, 1.0),
-    (3, 'CH4',    'CH₄',    'kt', 0, 28.0),
-    (4, 'N2O',    'N₂O',    'kt', 0, 265.0);
+    (1, 'CO2 eq', 'CO₂ eq', 'kt',        1, NULL),
+    (2, 'CO2',    'CO₂',    'kt',        0, 1.0),
+    (3, 'CH4',    'CH₄',    'kt',        0, 28.0),
+    (4, 'N2O',    'N₂O',    'kt',        0, 265.0),
+    (5, 'HFCs',   'HFCs',   'kt CO₂ eq', 1, NULL),
+    (6, 'PFCs',   'PFCs',   'kt CO₂ eq', 1, NULL),
+    (7, 'SF6',    'SF₆',    'kt CO₂ eq', 1, NULL);
 
--- *********************************************************
--- SEED DATA: dimYear
--- *********************************************************
+-- ************************************************************
+-- SEED DATA: dimSector
+-- ************************************************************
 
-INSERT OR IGNORE INTO dimYear (yearId, inventoryPeriod) VALUES
-    (1990, 'BTR1 (1990-2022)'), (1991, 'BTR1 (1990-2022)'),
-    (1992, 'BTR1 (1990-2022)'), (1993, 'BTR1 (1990-2022)'),
-    (1994, 'BTR1 (1990-2022)'), (1995, 'BTR1 (1990-2022)'),
-    (1996, 'BTR1 (1990-2022)'), (1997, 'BTR1 (1990-2022)'),
-    (1998, 'BTR1 (1990-2022)'), (1999, 'BTR1 (1990-2022)'),
-    (2000, 'BTR1 (1990-2022)'), (2001, 'BTR1 (1990-2022)'),
-    (2002, 'BTR1 (1990-2022)'), (2003, 'BTR1 (1990-2022)'),
-    (2004, 'BTR1 (1990-2022)'), (2005, 'BTR1 (1990-2022)'),
-    (2006, 'BTR1 (1990-2022)'), (2007, 'BTR1 (1990-2022)'),
-    (2008, 'BTR1 (1990-2022)'), (2009, 'BTR1 (1990-2022)'),
-    (2010, 'BTR1 (1990-2022)'), (2011, 'BTR1 (1990-2022)'),
-    (2012, 'BTR1 (1990-2022)'), (2013, 'BTR1 (1990-2022)'),
-    (2014, 'BTR1 (1990-2022)'), (2015, 'BTR1 (1990-2022)'),
-    (2016, 'BTR1 (1990-2022)'), (2017, 'BTR1 (1990-2022)'),
-    (2018, 'BTR1 (1990-2022)'), (2019, 'BTR1 (1990-2022)'),
-    (2020, 'BTR1 (1990-2022)'), (2021, 'BTR1 (1990-2022)'),
-    (2022, 'BTR1 (1990-2022)');
-
+INSERT OR IGNORE INTO dimSector (sectorId, sectorName, sectorNamePt, ipccCategory, isTotalSector) VALUES
+    (1, 'Energy',        'Energia',      '1',    0),
+    (2, 'IPPU',          'IPPU',         '2',    0),
+    (3, 'Agriculture',   'Agropecuária', '3',    0),
+    (4, 'LULUCF',        'LULUCF',       '3B/4', 0),
+    (5, 'Waste',         'Resíduos',     '5',    0),
+    (6, 'Total',         'Total Brasil', NULL,   1);
 
