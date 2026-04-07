@@ -103,3 +103,44 @@ db_create_schema <- function(con, sql_path = NULL) {
 
   etl_log("info", paste0("Executed ", length(statements), " statements"))
 }
+
+# /!\ One note on db_create_schema(): the current function strips SQL comments with
+# gsub("--[^\n]*", "", sql_text). That works fine, but the SQL Server file uses
+# block comments (/* */).
+
+
+
+#' Seed dimYear from extracted metadata
+#'
+#' Populates the dimYear table dynamically based on the years
+#' found in the source file. Safe to call multiple times —
+#' existing years are skipped.
+#'
+#' @param con A `DBIConnection` object.
+#' @param years Integer vector of years (e.g. 1990:2022).
+#' @param inventoryPeriod Character. Label for this inventory
+#'   (e.g. "BTR1 (1990-2022)"). Parsed from the source file header.
+#'
+#' @export
+db_seed_dim_year <- function(con, years, inventoryPeriod) {
+
+  etl_log("info", paste0(
+    "Seeding dimYear: ", length(years), " years, period: ", inventoryPeriod
+  ))
+
+  dim_year <- dplyr::tibble(
+    yearId          = as.integer(years),
+    inventoryPeriod = inventoryPeriod
+  )
+
+  # Only insert years that don't already exist
+  existing <- DBI::dbGetQuery(con, "SELECT yearId FROM dimYear")
+  new_years <- dplyr::anti_join(dim_year, existing, by = "yearId")
+
+  if (nrow(new_years) > 0) {
+    DBI::dbAppendTable(con, "dimYear", new_years)
+    etl_log("info", paste0("Inserted ", nrow(new_years), " new years"))
+  } else {
+    etl_log("info", "All years already exist in dimYear")
+  }
+}
