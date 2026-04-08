@@ -17,7 +17,7 @@
 #'   # Emissions by state in the Energy sector
 #'   plot_emissions(sector = "Energy", region = "Sudeste")
 #'
-#'   # Compare sectors for São Paulo
+#'   # Compare sectors for S\u00e3o Paulo
 #'   plot_emissions(uf = "SP", colorBy = "sector")
 #'
 #'   # Compare gases for Brasil
@@ -233,7 +233,7 @@ plot_ranking <- function(sector = NULL,
 
   if (is.null(title)) {
     gas_label <- paste(gas, collapse = ", ")
-    title <- paste0("Emissions Ranking (", year, ") — ", gas_label)
+    title <- paste0("Emissions Ranking (", year, ") \u2014 ", gas_label)
     if (!is.null(sector)) title <- paste0(title, " | ", paste(sector, collapse = ", "))
   }
   p <- p + ggplot2::ggtitle(title)
