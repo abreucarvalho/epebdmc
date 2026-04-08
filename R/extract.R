@@ -193,7 +193,7 @@ gas_id_from_sheet <- function(sheet_name) {
     "SF6"    = 7L
   )
 
-  id <- mapping[sheet_name]
+  id <- unname(mapping[sheet_name])
   if (is.na(id)) warning("Unknown sheet/gas: ", sheet_name)
   id
 }
