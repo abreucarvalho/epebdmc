@@ -58,7 +58,7 @@ how lines are grouped and colored.
   # Emissions by state in the Energy sector
   plot_emissions(sector = "Energy", region = "Sudeste")
 
-  # Compare sectors for São Paulo
+  # Compare sectors for S\u00e3o Paulo
   plot_emissions(uf = "SP", colorBy = "sector")
 
   # Compare gases for Brasil
