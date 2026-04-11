@@ -99,6 +99,9 @@ plot_map(sector = "Energy", year = 2022)
 
 # Change between two years (green = decrease, red = increase)
 plot_map_change(sector = "LULUCF", yearFrom = 1990, yearTo = 2022)
+
+![Energy emissions by state, 2022](man/figures/README-map-energy-2022.png)
+
 ```
 
 ## Export
@@ -111,7 +114,6 @@ export_emissions(path = "energy_sudeste.csv", sector = "Energy", region = "Sudes
 export_emissions(path = "all_emissions.xlsx")
 ```
 
-![Energy emissions by state, 2022](man/figures/README-map-energy-2022.png)
 
 ## Data Source
 
