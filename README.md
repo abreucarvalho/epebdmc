@@ -88,9 +88,14 @@ plot_map(sector = "Energy", year = 2022)
 
 # Change between two years (green = decrease, red = increase)
 plot_map_change(sector = "LULUCF", yearFrom = 1990, yearTo = 2022)
-
-![Energy emissions by state, 2022](man/figures/README-map-energy-2022.png)
 ```
+
+<figure>
+<img src="man/figures/README-map-energy-2022.png"
+alt="Energy emissions by state, 2022" />
+<figcaption aria-hidden="true">Energy emissions by state,
+2022</figcaption>
+</figure>
 
 ## Export
 
