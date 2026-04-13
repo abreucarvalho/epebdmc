@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS dimUf (
     isBrasilTotal   INTEGER DEFAULT 0
 );
 
-CREATE TABLE IF NOT EXISTS dimGasType (
+CREATE TABLE IF NOT EXISTS dimBtr1GasType (
     gasId           INTEGER PRIMARY KEY,
     gasName         TEXT NOT NULL,
     gasFormula      TEXT NOT NULL,
@@ -53,10 +53,10 @@ CREATE TABLE IF NOT EXISTS dimYear (
 );
 
 -- ************************************************************
--- FACT TABLE
+-- FACT TABLES
 -- ************************************************************
 
-CREATE TABLE IF NOT EXISTS factEmissions (
+CREATE TABLE IF NOT EXISTS factBtr1Emissions (
     id              INTEGER PRIMARY KEY AUTOINCREMENT,
     ufId            INTEGER NOT NULL,
     sectorId        INTEGER NOT NULL,
@@ -65,7 +65,7 @@ CREATE TABLE IF NOT EXISTS factEmissions (
     emissionKt      REAL,
     FOREIGN KEY (ufId)     REFERENCES dimUf(ufId),
     FOREIGN KEY (sectorId) REFERENCES dimSector(sectorId),
-    FOREIGN KEY (gasId)    REFERENCES dimGasType(gasId),
+    FOREIGN KEY (gasId)    REFERENCES dimBtr1GasType(gasId),
     FOREIGN KEY (yearId)   REFERENCES dimYear(yearId)
 );
 
@@ -104,10 +104,10 @@ INSERT OR IGNORE INTO dimUf (ufId, ufCode, ufName, regionName, isBrasilTotal) VA
     (99, 'BR', 'Brasil',               'Brasil',       1);
 
 -- ************************************************************
--- SEED DATA: dimGasType
+-- SEED DATA: dimBtr1GasType
 -- ************************************************************
 
-INSERT OR IGNORE INTO dimGasType (gasId, gasName, gasFormula, gasUnit, isEquivalent, gwpAr5) VALUES
+INSERT OR IGNORE INTO dimBtr1GasType (gasId, gasName, gasFormula, gasUnit, isEquivalent, gwpAr5) VALUES
     (1, 'CO2 eq', 'CO₂ eq', 'kt',        1, NULL),
     (2, 'CO2',    'CO₂',    'kt',        0, 1.0),
     (3, 'CH4',    'CH₄',    'kt',        0, 28.0),
