@@ -6,14 +6,240 @@ vignette: >
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
-
-```{r, include = FALSE}
+```{r setup, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  eval = FALSE
 )
 ```
 
-```{r setup}
+## Overview
+
+`epebdmc` makes it easy to work with Brazil's greenhouse gas emissions
+data from the First Biennial Transparency Report (BTR1), published by
+the Ministry of Science, Technology and Innovation (MCTI/SIRENE).
+
+The package handles the full pipeline: downloading the raw data,
+transforming it into a queryable format, and providing simple functions
+to filter, visualize, and export results.
+
+## Quick Start
+```{r quickstart}
 library(epebdmc)
+
+# Step 1: Set up the database (run once)
+setup_btr1()
+
+# Step 2: Query, plot, export
+get_emissions(sector = "Energy", uf = "SP")
+plot_emissions(sector = "Energy", region = "Sudeste")
+export_emissions(path = "energy_data.csv", sector = "Energy")
 ```
+
+## Setup
+
+`setup_btr1()` downloads all 6 sector files from MCTI, validates the
+data, and loads everything into a local SQLite database. You only need
+to run this once. Run it again with `overwrite = TRUE` when MCTI
+publishes updated data.
+```{r setup-options}
+# Default: downloads from MCTI
+setup_btr1()
+
+# Re-run with fresh data
+setup_btr1(overwrite = TRUE)
+
+# Use local files instead
+setup_btr1(sources = c(
+  Energia      = "data/BTR1_UF_Energia.xlsx",
+  IPPU         = "data/BTR1_UF_IPPU.xlsx",
+  Agropecuaria = "data/BTR1_UF_Agropecuaria.xlsx",
+  LULUCF       = "data/BTR1_UF_LULUCF.xlsx",
+  Residuos     = "data/BTR1_UF_Residuos.xlsx",
+  Total        = "data/BTR1_UF_Total_Brasil.xlsx"
+))
+
+# Check what's in the database
+get_data_summary()
+```
+
+## Querying Data
+
+`get_emissions()` is the main function. All parameters are optional
+and can be combined freely.
+
+### Filter by state
+```{r query-uf}
+# By state code
+get_emissions(uf = "RJ")
+
+# By full name
+get_emissions(uf = "Rio de Janeiro")
+
+# By IBGE code
+get_emissions(uf = 33)
+
+# Multiple states
+get_emissions(uf = c("SP", "RJ", "MG"))
+```
+
+### Filter by sector
+```{r query-sector}
+# English or Portuguese names work
+get_emissions(sector = "Energy")
+get_emissions(sector = "Energia")
+
+# Available sectors: Energy, IPPU, Agriculture, LULUCF, Waste, Total
+```
+
+### Filter by gas
+```{r query-gas}
+# Default is CO2 eq (all gases combined)
+get_emissions(uf = "SP")
+
+# Specific gas
+get_emissions(uf = "SP", gas = "CH4")
+
+# Multiple gases
+get_emissions(uf = "SP", gas = c("CO2", "CH4", "N2O"))
+
+# Available: CO2 eq, CO2, CH4, N2O, HFCs, PFCs, SF6
+```
+
+### Filter by year and region
+```{r query-year-region}
+# Single year
+get_emissions(sector = "Energy", year = 2022)
+
+# Year range
+get_emissions(sector = "Energy", year = 2010:2022)
+
+# Specific years
+get_emissions(sector = "Energy", year = c(1990, 2000, 2010, 2022))
+
+# By region
+get_emissions(region = "Nordeste")
+
+# Available regions: Norte, Nordeste, Sudeste, Sul, Centro-Oeste
+```
+
+### Include Brasil total
+```{r query-brasil}
+# By default, the Brasil aggregation row is excluded
+# Include it for comparison:
+get_emissions(sector = "Energy", year = 2022, includeBrasil = TRUE)
+```
+
+### Combine everything
+```{r query-combined}
+get_emissions(
+  sector = "LULUCF",
+  region = c("Norte", "Centro-Oeste"),
+  gas    = "CO2",
+  year   = 2000:2022
+)
+```
+
+## Visualization
+
+### Time series
+```{r plot-line}
+# Emissions over time by state
+plot_emissions(sector = "Energy", region = "Sudeste")
+
+# Compare sectors for one state
+plot_emissions(uf = "SP", colorBy = "sector")
+
+# Compare gases
+plot_emissions(
+  uf = "SP", sector = "Energy",
+  gas = c("CO2", "CH4", "N2O"),
+  colorBy = "gas"
+)
+
+# By region with total line
+plot_emissions(sector = "Energy", colorBy = "region", showTotal = TRUE)
+```
+
+### Rankings
+```{r plot-ranking}
+# Top 10 emitting states
+plot_ranking(sector = "Energy", year = 2022, topN = 10)
+
+# Compare sectors
+plot_ranking(year = 2022, rankBy = "sector")
+
+# Compare regions
+plot_ranking(sector = "LULUCF", year = 2022, rankBy = "region")
+```
+
+### Maps
+
+Requires the `geobr` and `sf` packages.
+```{r plot-map}
+# Choropleth: emissions by state
+plot_map(sector = "Energy", year = 2022)
+
+# With values on the map
+plot_map(sector = "LULUCF", year = 2022, showValues = TRUE)
+
+# Custom palette
+plot_map(sector = "Energy", year = 2022, palette = "Blues")
+
+# Change map: compare two years
+plot_map_change(sector = "Energy", yearFrom = 1990, yearTo = 2022)
+
+# LULUCF change with percentages
+plot_map_change(
+  sector = "LULUCF",
+  yearFrom = 2000, yearTo = 2022,
+  showValues = TRUE
+)
+```
+
+## Exporting Data
+```{r export}
+# CSV
+export_emissions(path = "energy_sudeste.csv", sector = "Energy", region = "Sudeste")
+
+# Excel
+export_emissions(path = "all_data.xlsx")
+
+# Filtered export
+export_emissions(
+  path   = "rj_lulucf_2010_2022.csv",
+  uf     = "RJ",
+  sector = "LULUCF",
+  year   = 2010:2022
+)
+```
+
+## Advanced: Custom Queries
+
+For analyses beyond what the high-level functions provide, use
+`get_db()` to access the database directly with `dplyr`.
+```{r advanced}
+con <- get_db()
+
+# Total emissions by region and sector in 2022
+dplyr::tbl(con, "factEmissions") |>
+  dplyr::inner_join(dplyr::tbl(con, "dimUf"), by = "ufId") |>
+  dplyr::inner_join(dplyr::tbl(con, "dimSector"), by = "sectorId") |>
+  dplyr::filter(gasId == 1, yearId == 2022, isBrasilTotal == 0) |>
+  dplyr::group_by(regionName, sectorName) |>
+  dplyr::summarise(totalKt = sum(emissionKt, na.rm = TRUE)) |>
+  dplyr::collect()
+
+db_disconnect(con)
+```
+
+## Data Source
+
+All data comes from MCTI's SIRENE platform — the official Brazilian
+greenhouse gas inventory system. The BTR1 covers emissions from 1990
+to 2022 across the five IPCC sectors (Energy, IPPU, Agriculture,
+LULUCF, Waste) for all 27 Brazilian states plus Distrito Federal.
+
+For more information:
+[MCTI Climate Page](https://www.gov.br/mcti/pt-br/acompanhe-o-mcti/cgcl/clima)
