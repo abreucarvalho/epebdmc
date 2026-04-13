@@ -28,9 +28,11 @@ Imports:
     tidyr
 Suggests: 
     dbplyr,
+    geobr,
     knitr,
     odbc,
     rmarkdown,
+    sf,
     testthat (>= 3.0.0),
     tibble,
     writexl
