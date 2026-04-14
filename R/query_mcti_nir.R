@@ -79,19 +79,19 @@ get_nir_emissions <- function(sector = NULL,
       dplyr::filter(.data$categoryLevel %in% level)
   }
 
-  # Category filter (supports partial matching)
+  # Category filter
   if (!is.null(category)) {
-    # Build SQL LIKE patterns for partial match
-    cat_patterns <- paste0(category, "%")
+    # Collect matching category codes first, then filter
+    all_cats <- dplyr::tbl(con, "dimNirCategory") |>
+      dplyr::pull(.data$categoryCode)
+
+    matched <- unlist(lapply(category, function(cat) {
+      all_cats[startsWith(all_cats, cat)]
+    }))
+    matched <- unique(matched)
+
     query <- query |>
-      dplyr::filter(
-        .data$categoryCode %in% category |
-          purrr::reduce(
-            cat_patterns,
-            function(q, pat) q | (.data$categoryCode %LIKE% pat),
-            .init = (.data$categoryCode %in% category)
-          )
-      )
+      dplyr::filter(.data$categoryCode %in% matched)
   }
 
   # Total row
