@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS etlLog (
 );
 
 -- ************************************************************
--- DIMENSION TABLES
+-- MCTI BTR1 DIMENSION TABLES
 -- ************************************************************
 
 CREATE TABLE IF NOT EXISTS dimUf (
@@ -53,7 +53,30 @@ CREATE TABLE IF NOT EXISTS dimYear (
 );
 
 -- ************************************************************
--- FACT TABLES
+-- MCTI NIR DIMENSION TABLES
+-- ************************************************************
+
+CREATE TABLE IF NOT EXISTS dimNirMetric (
+    metricId        INTEGER PRIMARY KEY,
+    metricName      TEXT NOT NULL,
+    metricFormula   TEXT NOT NULL,
+    metricUnit      TEXT NOT NULL DEFAULT 'kt',
+    isEquivalent    INTEGER DEFAULT 0,
+    metricMethod    TEXT
+);
+
+CREATE TABLE IF NOT EXISTS dimNirCategory (
+    categoryId      INTEGER PRIMARY KEY AUTOINCREMENT,
+    categoryCode    TEXT NOT NULL,
+    categoryName    TEXT NOT NULL,
+    categoryLevel   INTEGER NOT NULL,
+    parentCode      TEXT,
+    sectorId        INTEGER,
+    FOREIGN KEY (sectorId) REFERENCES dimSector(sectorId)
+);
+
+-- ************************************************************
+-- MCTI BTR1 FACT TABLES
 -- ************************************************************
 
 CREATE TABLE IF NOT EXISTS factBtr1Emissions (
@@ -67,6 +90,21 @@ CREATE TABLE IF NOT EXISTS factBtr1Emissions (
     FOREIGN KEY (sectorId) REFERENCES dimSector(sectorId),
     FOREIGN KEY (gasId)    REFERENCES dimBtr1GasType(gasId),
     FOREIGN KEY (yearId)   REFERENCES dimYear(yearId)
+);
+
+-- ************************************************************
+-- MCTI NIR FACT TABLE
+-- ************************************************************
+
+CREATE TABLE IF NOT EXISTS factNirEmissions (
+    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+    categoryId      INTEGER NOT NULL,
+    metricId        INTEGER NOT NULL,
+    yearId          INTEGER NOT NULL,
+    emissionKt      REAL,
+    FOREIGN KEY (categoryId) REFERENCES dimNirCategory(categoryId),
+    FOREIGN KEY (metricId)   REFERENCES dimNirMetric(metricId),
+    FOREIGN KEY (yearId)     REFERENCES dimYear(yearId)
 );
 
 -- ************************************************************
@@ -128,3 +166,25 @@ INSERT OR IGNORE INTO dimSector (sectorId, sectorName, sectorNamePt, ipccCategor
     (5, 'Waste',         'Resíduos',     '5',    0),
     (6, 'Total',         'Total Brasil', NULL,   1);
 
+-- ************************************************************
+-- SEED DATA: dimNirMetric
+-- ************************************************************
+
+INSERT OR IGNORE INTO dimNirMetric (metricId, metricName, metricFormula, metricUnit, isEquivalent, metricMethod) VALUES
+    (1,  'CO2e_GWP_AR5',  'CO\u2082e (GWP AR5)',  'kt CO2 eq', 1, 'GWP_AR5'),
+    (2,  'CO2e_GTP_AR5',  'CO\u2082e (GTP AR5)',  'kt CO2 eq', 1, 'GTP_AR5'),
+    (3,  'CO2e_GWP_SAR',  'CO\u2082e (GWP SAR)',  'kt CO2 eq', 1, 'GWP_SAR'),
+    (4,  'CO2',           'CO\u2082',              'kt',        0, NULL),
+    (5,  'CH4',           'CH\u2084',              'kt',        0, NULL),
+    (6,  'N2O',           'N\u2082O',              'kt',        0, NULL),
+    (7,  'HFC-23',        'HFC-23',                'kt',        0, NULL),
+    (8,  'HFC-32',        'HFC-32',                'kt',        0, NULL),
+    (9,  'HFC-125',       'HFC-125',               'kt',        0, NULL),
+    (10, 'HFC-134a',      'HFC-134a',              'kt',        0, NULL),
+    (11, 'HFC-143a',      'HFC-143a',              'kt',        0, NULL),
+    (12, 'HFC-152a',      'HFC-152a',              'kt',        0, NULL),
+    (13, 'HFC-227ea',     'HFC-227ea',             'kt',        0, NULL),
+    (14, 'HFC-365mfc',    'HFC-365mfc',            'kt',        0, NULL),
+    (15, 'CF4',           'CF\u2084',              'kt',        0, NULL),
+    (16, 'C2F6',          'C\u2082F\u2086',        'kt',        0, NULL),
+    (17, 'SF6',           'SF\u2086',              'kt',        0, NULL);
