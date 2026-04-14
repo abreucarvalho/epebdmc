@@ -366,10 +366,13 @@ extract_nir_all <- function(sources = NULL) {
     extract_nir(src)
   })
 
-  combined_data <- purrr::map_dfr(results, "data")
+  combined_data <- purrr::map_dfr(results, "data") |>
+    dplyr::distinct(.data$categoryCode, .data$metricId, .data$yearId, .keep_all = TRUE)
+
   combined_cats <- purrr::map_dfr(results, "categories") |>
     dplyr::distinct(.data$categoryCode, .data$categoryName,
                     .data$categoryLevel, .data$parentCode, .data$sectorId)
+
   all_metadata  <- purrr::map(results, "metadata")
 
   etl_log("extract", paste0(
