@@ -44,22 +44,21 @@ Dimensions already implemented and available for reuse:
 
 ---
 
-### 2. [Source Name]
+### 2. MCTI — NIR (National Inventory Report)
 
 | Field              | Value                                            |
 |--------------------|--------------------------------------------------|
-| **Source**         |                                                  |
-| **Dataset**        |                                                  |
-| **Description**    |                                                  |
-| **Grain**          |                                                  |
-| **Fact Table**     |                                                  |
-| **Shared Dims**    |                                                  |
-| **New Dims**       |                                                  |
-| **Files**          |                                                  |
-| **URL**            |                                                  |
-| **Status**         | 🔲 Planned                                      |
-| **Notes**          |                                                  |
-
+| **Source**         | MCTI / SIRENE                                    |
+| **Dataset**        | NIR_2024_1990-2022_*.xlsx (6 files)              |
+| **Description**    | GHG emissions by IPCC subcategory, national level (1990–2022) |
+| **Grain**          | category × metric × year                         |
+| **Fact Table**     | factNirEmissions                                 |
+| **Shared Dims**    | dimYear, dimSector                               |
+| **New Dims**       | dimNirCategory (IPCC hierarchy), dimNirMetric (gases + CO2e variants) |
+| **Files**          | extract_mcti_nir.R, load_mcti_nir.R, pipeline_mcti_nir.R, query_mcti_nir.R |
+| **URL**            | https://www.gov.br/mcti/pt-br/acompanhe-o-mcti/cgcl/clima/arquivos/arquivos_bi/5-aba/ |
+| **Status**         | 🔧 In Progress                                  |
+| **Notes**          | National totals only (no state breakdown). 166 unique IPCC subcategories across 6 files. Hierarchy up to 7 levels deep. IPPU has 17 sheets (individual F-gases). 'Agropecuaria' sheets have trailing spaces in names. Total file has only 3 CO2e sheets. |
 ---
 
 ### 3. [Source Name]
