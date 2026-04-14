@@ -74,7 +74,7 @@ test_that("load_btr1 handles single-sector result", {
 
   load_btr1(fake_result, con, mode = "overwrite")
 
-  rows <- DBI::dbGetQuery(con, "SELECT COUNT(*) AS n FROM factEmissions")
+  rows <- DBI::dbGetQuery(con, "SELECT COUNT(*) AS n FROM factBtr1Emissions")
   expect_equal(rows$n, 2)
 
   years <- DBI::dbGetQuery(con, "SELECT COUNT(*) AS n FROM dimYear")

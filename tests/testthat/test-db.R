@@ -35,10 +35,10 @@ test_that("db_create_schema creates all expected tables", {
 
   tables <- DBI::dbListTables(con)
   expect_true("dimUf" %in% tables)
-  expect_true("dimGasType" %in% tables)
+  expect_true("dimBtr1GasType" %in% tables)
   expect_true("dimSector" %in% tables)
   expect_true("dimYear" %in% tables)
-  expect_true("factEmissions" %in% tables)
+  expect_true("factBtr1Emissions" %in% tables)
   expect_true("etlLog" %in% tables)
 })
 
@@ -64,7 +64,7 @@ test_that("db_create_schema seeds dimUf with 28 entries", {
   expect_equal(br$isBrasilTotal, 1)
 })
 
-test_that("db_create_schema seeds dimGasType with 7 gases", {
+test_that("db_create_schema seeds dimBtr1GasType with 7 gases", {
   con <- db_connect("sqlite", list(dbname = ":memory:"))
   on.exit(db_disconnect(con))
 
@@ -73,7 +73,7 @@ test_that("db_create_schema seeds dimGasType with 7 gases", {
 
   db_create_schema(con, sql_path = sql_path)
 
-  gases <- DBI::dbGetQuery(con, "SELECT * FROM dimGasType")
+  gases <- DBI::dbGetQuery(con, "SELECT * FROM dimBtr1GasType")
   expect_equal(nrow(gases), 7)
   expect_true("HFCs" %in% gases$gasName)
   expect_true("SF6" %in% gases$gasName)

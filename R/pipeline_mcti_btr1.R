@@ -10,7 +10,7 @@
 #' @param sources Named character vector of file paths or URLs.
 #'   Defaults to the official MCTI download links (all 6 sectors).
 #' @param overwrite Logical. If `TRUE`, drops and recreates the
-#'   factEmissions table. If `FALSE` (default), appends to existing data.
+#'   factBtr1Emissions table. If `FALSE` (default), appends to existing data.
 #'   Dimension tables are never dropped — seed data uses INSERT OR IGNORE.
 #' @param validate Logical. Run total validation before loading?
 #'   Default `TRUE`.
@@ -18,7 +18,7 @@
 #' @return Invisible list with:
 #'   \describe{
 #'     \item{dbname}{Path to the created/updated database.}
-#'     \item{rows}{Total rows loaded into factEmissions.}
+#'     \item{rows}{Total rows loaded into factBtr1Emissions.}
 #'     \item{sectors}{Character vector of sectors loaded.}
 #'     \item{years}{Integer vector of years in the data.}
 #'     \item{discrepancies}{Tibble of validation discrepancies (if any).}

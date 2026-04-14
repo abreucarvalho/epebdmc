@@ -122,7 +122,7 @@ parse_btr1_metadata <- function(path) {
 
 #' Sheet name to gasId mapping
 #'
-#' Returns the gasId for a given sheet name. Must match dimGasType
+#' Returns the gasId for a given sheet name. Must match dimBtr1GasType
 #' seed data. Returns NA for unrecognized sheets.
 #'
 #' @param sheet_name Character. The Excel sheet name.
@@ -252,7 +252,7 @@ extract_btr1_sheet <- function(path, sheet_name, gas_id, sector_id) {
 #'
 #' Reads a BTR1_UF_*.xlsx file (from a local path or URL),
 #' auto-detects the sector and available gas sheets, unpivots all
-#' sheets to long format, and returns data ready for factEmissions.
+#' sheets to long format, and returns data ready for factBtr1Emissions
 #'
 #' Works with all BTR1 UF files: Energia, IPPU, Agropecuária,
 #' LULUCF, Resíduos, and Total_Brasil.
@@ -262,7 +262,7 @@ extract_btr1_sheet <- function(path, sheet_name, gas_id, sector_id) {
 #' @return A list with two elements:
 #'   \describe{
 #'     \item{data}{Tibble with columns: ufId, sectorId, gasId,
-#'       yearId, emissionKt. Ready to load into factEmissions.}
+#'       yearId, emissionKt. Ready to load into factBtr1Emissions.}
 #'     \item{metadata}{List with inventoryPeriod, sectorId,
 #'       sectorNamePt, years, and sheetNames.}
 #'   }
@@ -332,7 +332,7 @@ extract_btr1_uf <- function(source) {
 #'
 #' @return A list with:
 #'   \describe{
-#'     \item{data}{Combined tibble of all sectors, ready for factEmissions.}
+#'     \item{data}{Combined tibble of all sectors, ready for factBtr1Emissions.}
 #'     \item{metadata}{List of metadata objects, one per sector.}
 #'   }
 #'

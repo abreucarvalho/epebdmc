@@ -15,7 +15,7 @@ test_that("full roundtrip: extract -> load -> query", {
   sql_path <- testthat::test_path("..", "..", "inst", "config", "schemas_sqlite.sql")
   db_create_schema(con, sql_path = sql_path)
   db_seed_dim_year(con, result$metadata$years, result$metadata$inventoryPeriod)
-  load_to_db(result$data, con, "factEmissions", mode = "overwrite")
+  load_to_db(result$data, con, "factBtr1Emissions", mode = "overwrite")
   db_disconnect(con)
 
   # Query via get_emissions
@@ -67,7 +67,7 @@ test_that("full roundtrip: export works", {
   sql_path <- testthat::test_path("..", "..", "inst", "config", "schemas_sqlite.sql")
   db_create_schema(con, sql_path = sql_path)
   db_seed_dim_year(con, result$metadata$years, result$metadata$inventoryPeriod)
-  load_to_db(result$data, con, "factEmissions", mode = "overwrite")
+  load_to_db(result$data, con, "factBtr1Emissions", mode = "overwrite")
   db_disconnect(con)
 
   # Export
@@ -97,7 +97,7 @@ test_that("plot functions return ggplot objects", {
   sql_path <- testthat::test_path("..", "..", "inst", "config", "schemas_sqlite.sql")
   db_create_schema(con, sql_path = sql_path)
   db_seed_dim_year(con, result$metadata$years, result$metadata$inventoryPeriod)
-  load_to_db(result$data, con, "factEmissions", mode = "overwrite")
+  load_to_db(result$data, con, "factBtr1Emissions", mode = "overwrite")
   db_disconnect(con)
 
   p1 <- plot_emissions(sector = "Energy", region = "Sul", dbname = tmp_db)

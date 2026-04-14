@@ -172,7 +172,7 @@ plot_ranking <- function(sector = NULL,
   if (is.null(year)) {
     con <- get_db(dbname)
     on.exit(db_disconnect(con), add = TRUE)
-    max_year <- DBI::dbGetQuery(con, "SELECT MAX(yearId) AS y FROM factEmissions")
+    max_year <- DBI::dbGetQuery(con, "SELECT MAX(yearId) AS y FROM factBtr1Emissions")
     year <- max_year$y
   }
 

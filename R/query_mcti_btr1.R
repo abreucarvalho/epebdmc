@@ -53,10 +53,10 @@ get_emissions <- function(sector = NULL,
   on.exit(db_disconnect(con), add = TRUE)
 
   # Build query by joining all dimensions
-  query <- dplyr::tbl(con, "factEmissions") |>
+  query <- dplyr::tbl(con, "factBtr1Emissions") |>
     dplyr::inner_join(dplyr::tbl(con, "dimUf"),      by = "ufId") |>
     dplyr::inner_join(dplyr::tbl(con, "dimSector"),   by = "sectorId") |>
-    dplyr::inner_join(dplyr::tbl(con, "dimGasType"),  by = "gasId") |>
+    dplyr::inner_join(dplyr::tbl(con, "dimBtr1GasType"),  by = "gasId") |>
     dplyr::inner_join(dplyr::tbl(con, "dimYear"),     by = "yearId")
 
   # --- Apply filters ---
@@ -143,26 +143,26 @@ get_data_summary <- function(dbname = "epebdmc.sqlite") {
 
   sectors <- DBI::dbGetQuery(con,
                              "SELECT DISTINCT sectorName, sectorNamePt FROM dimSector
-     WHERE sectorId IN (SELECT DISTINCT sectorId FROM factEmissions)
+     WHERE sectorId IN (SELECT DISTINCT sectorId FROM factBtr1Emissions)
      ORDER BY sectorName"
   )
 
   gases <- DBI::dbGetQuery(con,
-                           "SELECT DISTINCT gasName, gasFormula FROM dimGasType
-     WHERE gasId IN (SELECT DISTINCT gasId FROM factEmissions)
+                           "SELECT DISTINCT gasName, gasFormula FROM dimBtr1GasType
+     WHERE gasId IN (SELECT DISTINCT gasId FROM factBtr1Emissions)
      ORDER BY gasId"
   )
 
   years <- DBI::dbGetQuery(con,
-                           "SELECT MIN(yearId) AS minYear, MAX(yearId) AS maxYear FROM factEmissions"
+                           "SELECT MIN(yearId) AS minYear, MAX(yearId) AS maxYear FROM factBtr1Emissions"
   )
 
   uf_count <- DBI::dbGetQuery(con,
-                              "SELECT COUNT(DISTINCT ufId) AS n FROM factEmissions WHERE ufId != 99"
+                              "SELECT COUNT(DISTINCT ufId) AS n FROM factBtr1Emissions WHERE ufId != 99"
   )
 
   total_rows <- DBI::dbGetQuery(con,
-                                "SELECT COUNT(*) AS n FROM factEmissions"
+                                "SELECT COUNT(*) AS n FROM factBtr1Emissions"
   )
 
   list(
